@@ -1,0 +1,77 @@
+def bakPath = file('${buildDir}/bak')
+
+ext {
+    tinkerEnabled = true
+    oldApkPath = "${bakPath}"
+    //proguard相关
+    tinkerApplyMappingPath = "${bakPath}"
+
+    tinkerApplyResourcePath = "${bakPath}"
+    tinkerBuildFlavorDirectory = "${bakPath}"
+    tinkerId = "1.0"
+}
+
+if(ext.tinkerEnable){
+    apply plugin: 'com.tencent.tinker.patch'
+
+    prinln 'apply tinker'
+    tinkerPath{
+        //指定oldApk路径
+        oldApk = ext.oldApkPath
+
+        /**
+         * 指定不忽略tinker警告，发生警告会终止patch
+         * warring的4种情况
+         * 1.minSdkVersion < 14但是dexMode设置为raw
+         * 2.在AndroidManifest文件新增组件
+         * 3.resources.arcs改变但是没有使用applyRsourceMapping编译
+         * 4.
+         */
+        ignoreWarning = true
+
+        //是否启用tinker
+        tinkerEnable = ext.tinkerEnable
+
+        buildConfig{
+            //指定混淆文件路径
+            applyMapping = ext.tinkerApplyMappingPath
+            //指定oldapk资源路径
+            applyResourceMapping = ext.tinkerApplyResourcePath
+            //指定tinkerid，一般为版本号
+            tinkerId = ext.tinkerId
+            keepDexApply = false
+        }
+
+        dex{
+            dexMode = "jar"
+            //指定dex路径
+            pattern = ["classes*.dex","assets/secondary-dex-?.jar"]
+            //指定加载patch用到的类.实现tinkerApplication的类
+            loader = ["com."]
+        }
+
+        lib{
+            pattern = ["lib/*/*.so"]
+        }
+
+        res{
+            //指定可以修改的资源路径
+            pattern = ["res/*","assets/*","resources.arcs","AndroidManifest.xml"]
+
+            //指定不受影响的资源路径
+            ignoreChange = ["assets/sample.txt"]
+
+            //资源修改大小默认值
+            largeModeSize = 100
+        }
+
+        packageConfig{
+
+            configField("patchMessage", "fix the 1.0 version's bugs")
+
+            configField("patchVersion", "1.0")
+        }
+    }
+
+
+}

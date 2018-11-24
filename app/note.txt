@@ -1,0 +1,71 @@
+
+1.patch文件生产流程
+  配置gradle文件
+  生成基准app
+  修改ext语句块对应文件的名字
+  运行tinker Gradle选项卡对应的tinkerPatchRelease，生成patch.apk
+
+2.阅读Gradle官方文档
+
+TinkerApplication{
+	delegateClassName//ApplicationLike
+	loaderClassName//TinkerLoader,默认是com.tencent.tinker.loader.TinkerLoader
+	tinkerResultIntent//解析/data/data/包名/tinker目录下文件信息并放置在bundler里面
+
+	protected void attachBaseContext(Context base){
+	 	//通过反射调用loaderClassName的tryLoad()方法初始化tinkerResultIntent
+	 	//通过反射生产delegate，并调用onBaseContextAttached()
+	 }
+}
+
+//通过TinkerInstaller初始化Tinker，注入各种监听
+TinkerManager{
+
+   public static void installTinker(ApplicationLike appLike) {
+		TinkerInstaller.install(ApplicationLike,
+		    LoadReporter,
+		    PatchReporter,
+		    PatchListener,
+		    SampleResultService.class,
+		    AbstractPatch);
+
+	}
+}
+
+
+//热更新核心类
+Tinker{
+
+    ///data/data/tinker.sample.android/tinker下面的文件
+    final File          patchDirectory;
+    final File          patchInfoFile;
+    final File          patchInfoLockFile;
+
+    //热更新启动方法，在这里会启动一个IntentService做热更新任务
+    final PatchListener listener;
+
+    //加载patch文件的回调监听
+    final LoadReporter  loadReporter;
+
+    //patch过程的回调监听
+    final PatchReporter patchReporter;
+
+    TinkerLoadResult tinkerLoadResult;
+}
+
+
+热修复的局限性
+只能对单一版本进行修改，并且补丁包会随着修复bug越多变得越大
+不能修改AndroidManifest
+
+使用场景
+轻量快速的升级
+远程调试
+
+大概流程
+利用BsDiff算法对比基准包和更新包的差异，生成patch.dex文件。
+在加载的时候，开启一个后台进程合并原来的dex和patch。
+
+缺点
+占用体积
+一个额外的合成进程。合成时间的长短和占用内存会影响成功率

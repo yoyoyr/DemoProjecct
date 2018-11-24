@@ -1,0 +1,37 @@
+1.class文件
+二进制紧密排列的文件
+生成 javac hello.java hello.class
+执行 java hello.class
+一个java文件对应一个class文件
+
+2.dex文件
+二进制紧密排列的文件，一个android工程对应一个dex文件，相比于class文件，体积更小。
+
+5.DV和ART
+jvm  基于栈
+dalvik  基于寄存器，执行更快
+ART     安装程序的时候会将字节码转换为机器语言，因此后续运行更快跟更省电，但占用空间大
+
+6.Android ClassLoader
+Boot	加载frameworker代码
+Path    加载已经安装好的apk
+Dex     实现动态加载的依据
+BaseDex  Path和Dex的父类
+获取ClassLoader
+
+7.特点
+双亲委托
+继承类加载共享
+类加载隔离
+同一个class = 同包名+同类名+同一个classloader加载
+
+8.android动态加载的难点
+1.组件，.资源需要注册
+2不同的版本对于组件和资源的注册实现方式不同
+
+9.技术选型的步骤
+1.需求是什么
+2.需求成本低
+3.优先选择大公司的方案
+
+tinker 支持so替换和资源替换，功能最为齐全，但不能即时生效
