@@ -12,7 +12,7 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
     private String mPath;
 
-//    note
+//    note hotfix
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
